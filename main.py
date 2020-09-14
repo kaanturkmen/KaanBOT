@@ -1,6 +1,18 @@
 # KaanBOT is a turkish discord bot. It is programmed to work in a single server.
 
 # Importing packages.
+import os
+import requests
+
+try:
+  import requests
+except ImportError:
+  print("Trying to Install required module: requests\n")
+  os.system('python -m pip install requests')
+
+import requests
+import shlex
+import random
 import discord
 from discord.ext.commands import MissingPermissions
 from discord.ext import commands, tasks
@@ -142,7 +154,7 @@ async def unban(ctx, *, member):
             return
 
 
-# Commands which give information about certain topics and usable by all member is given below this line. #
+# Commands which give information about certain topics and usable by all member is given below this line.
 
 # Custom command
 @client.command()
@@ -169,10 +181,12 @@ async def senkimsin(ctx):
 
 
 # Custom command
+data = 'https://raw.githubusercontent.com/katurkmen/KaanBOT/master/main.py'
 @client.command()
 async def neyebenziyorsun(ctx):
-
-    await ctx.send('Tahminen şöyle bir şeye:\nhttps://giphy.com/gifs/code-coding-seamless-xT9IgzoKnwFNmISR8I')
+    buffer = requests.get(data).text
+    buffer = buffer.split('#')
+    await ctx.send('Tahminen şöyle bir şeye: \n```python\n#' + buffer[random.randint(5, len(buffer) - 1)] + "\n```')
 
 
 # Custom command
