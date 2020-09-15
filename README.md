@@ -4,11 +4,7 @@ KaanBOT is created for moderating and having fun in discord servers.
 
 KaanBOT is designed for CS Türkiye discord server. Thus, it is completely turkish.
 
-You can fill up required places in "Control Panel" and start using and modifying it.
-
-In control panel, variable types are given next to equal signs. Please follow the instructions.
-
-Only package which should be externally installed is discord.py
+If you want to install required packages, simply run "pip install -r requirements.txt" command in your terminal.
 
 After you import discord.py package and edit required areas, bot will be ready to run.
 
