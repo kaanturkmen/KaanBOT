@@ -281,6 +281,7 @@ async def istek(ctx, *, request=None):
 
 # Shutdown Catcher & Ignition
 if __name__ == '__main__':
+
     try:
         main()
     except KeyboardInterrupt:
