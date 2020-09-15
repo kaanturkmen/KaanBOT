@@ -214,7 +214,7 @@ Sana nasıl yardımcı olabilirim?
 """ + COMMAND_PREFIX + """neyebenziyorsun
 """ + COMMAND_PREFIX + """istek
 
-Eğer ki sahip olmam gereken bir komut isterseniz, bunu Kaan\'a' bildirebilirsiniz :)
+Eğer ki sahip olmam gereken bir komut isterseniz, bunu Kaan\'a bildirebilirsiniz :)
 """)
 
 
@@ -273,7 +273,7 @@ async def istek(ctx, *, request=None):
         channel = client.get_channel(SERVER_LOG_CHANNEL_ID)
 
         await channel.send(f"<@!{str(ADMINS_USER_ID)}> | {ctx.author.mention}\'dan gelen"
-                           f" komut isteği': {request}")
+                           f" komut isteği: {request}")
     else:
 
         await ctx.send(f"Lütfen geçerli bir istek giriniz. Örneğin,\n\n{COMMAND_PREFIX}istek Müzik özelliği eklenmeli!")
