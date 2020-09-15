@@ -1,12 +1,10 @@
 # KaanBOT is a turkish discord bot. It is programmed to work in a single server.
 
 # Importing packages.
-import discord
-from discord.ext.commands import MissingPermissions
-from discord.ext import commands, tasks
-from datetime import datetime
-from Settings import *
+from Imports import *
 
+# Getting bot settings in.
+from Settings import *
 
 # Creating bot.
 client = commands.Bot(command_prefix=COMMAND_PREFIX)
@@ -14,41 +12,44 @@ client = commands.Bot(command_prefix=COMMAND_PREFIX)
 # Current time.
 last_update_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+# Running the bot.
+def main():
+    client.run(BOT_TOKEN)
 
+# Function for counting bots of the server.
 def bot_count():
-    """
-    A method which counts how many bots are in the server.
-    :return: Integer value of bot count.
-    """
-
     guild = client.get_guild(SERVER_ID)
-
     bot_counter = 0
     for member in guild.members:
         if member.bot:
             bot_counter += 1
     return bot_counter
 
-
 # Displaying message, setting up status and starting update_user_count method when bot is ready.
 @client.event
 async def on_ready():
-
-    # Setting bot status.
-    activity = discord.Game(name=".y | github.com/katurkmen")
+    """SETTING BOT STATUS"""
+    activity = discord.Activity(type=discord.ActivityType.watching, name=COMMAND_PREFIX + "y" + " | Komutlarınızı")
     await client.change_presence(status=discord.Status.online, activity=activity)
 
-    # Starting user counting method.
+    """START USER COUNTING METHOD"""
     update_user_count.start()
 
-    # Printing text when bot is ready.
-    print('KaanBOT kullanıma hazır.')
+    """PRINTING BOT INFO"""
+    servers = "\n   - ".join([str(s.name) + " (" + str(s.id) + ")" for s in client.guilds])
+    print('Powered by KaanBot Base')
+    print("-------------------------------------\n"
+          "%s Bot\n"
+          "discord.py Versiyonu: %s\n"
+          "Komut İmleci: '%s'\n"
+          "Aktif Olduğu Sunucular:\n"
+          "   - %s\n"
+          "-------------------------------------\n\n" % (client.user.name, discord.__version__, COMMAND_PREFIX, servers))
 
 
 # Sending user joined message to the server's log channel and direct messages to the newcomer.
 @client.event
 async def on_member_join(member):
-
     guild = client.get_guild(SERVER_ID)
     channel = client.get_channel(SERVER_LOG_CHANNEL_ID)
 
@@ -66,27 +67,21 @@ async def on_member_join(member):
 # Sending user joined message to the server's log channel.
 @client.event
 async def on_member_remove(member):
-
     channel = client.get_channel(SERVER_LOG_CHANNEL_ID)
-
     await channel.send(f'<@!{str(ADMINS_USER_ID)}> | {member.mention} sunucudan çıktı!')
 
 
 # Keeps track of user count in the server by renaming specified voice channel every 10 minutes.
 @tasks.loop(minutes=10)
 async def update_user_count():
-
     global last_update_time
-
     channel_to_change = client.get_channel(CHANNEL_TO_UPDATE_ID)
     guild = client.get_guild(SERVER_ID)
-
     last_update_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
     await channel_to_change.edit(name=f'Üyeler: {guild.member_count - bot_count()}')
 
 
-# Moderation commands which restricted by certain roles are given below this line. #
+
 
 # Clears the current channel as specified amount of messages. If message count is not given, clears 5 messages.
 @client.command()
@@ -97,7 +92,6 @@ async def clear(ctx, amount=5):
     await ctx.channel.purge(limit=amount)
     await ctx.send(f'{amount} tane mesaj silindi.')
 
-
 # Kicks user.
 @client.command()
 @commands.has_any_role(ADMIN_ROLE, MODERATOR_ROLE)
@@ -106,7 +100,6 @@ async def kick(ctx, member: discord.Member, *, reason=None):
     await member.kick(reason=reason)
     await ctx.send(f'{member.mention} isimli kullanıcı sunucudan atıldı.')
 
-
 # Bans user.
 @client.command()
 @commands.has_any_role(ADMIN_ROLE, MODERATOR_ROLE)
@@ -114,7 +107,6 @@ async def ban(ctx, member: discord.Member, *, reason=None):
 
     await member.ban(reason=reason)
     await ctx.send(f'{member.mention} isimli kullanıcı banlandı.')
-
 
 # Unbans user.
 @client.command()
@@ -132,83 +124,91 @@ async def unban(ctx, *, member):
             await ctx.send(f'{user.mention} isimli kullanıcının banı kaldırıldı.')
             return
 
-# Custom command
+# updates user count on server.
 @client.command()
 @commands.has_role(ADMIN_ROLE)
 async def guncelleme(ctx):
-
     global last_update_time
-
     await ctx.send(f'Son kişi sayısı güncellemesi: {last_update_time}')
 
-# Commands which give information about certain topics and usable by all member is given below this line. #
+
+
+
+
 
 # Custom command
 @client.command()
 async def pastebin(ctx):
-
-    await ctx.send('Ehmm... Sanırım kodu ubuntu pastebin\'den paylaşman gerekiyordu. Kuralları okumuştun değil mi?'
-                   ' :scream_cat:\nhttps://paste.ubuntu.com/')
-
+    await ctx.send("""
+Ehmm... Sanırım kodu ubuntu pastebin\'den paylaşman gerekiyordu. Kuralları okumuştun değil mi?
+:scream_cat:\nhttps://paste.ubuntu.com/
+""")
 
 # Custom command
 @client.command()
 async def ping(ctx):
-
     await ctx.send(f'Pingin şu anda {round(client.latency * 1000)}ms.')
-
 
 # Custom command
 @client.command()
 async def senkimsin(ctx):
-
-    await ctx.send('Merhaba! Ben KaanBOT, Kaan\'ın kodladığı açık kaynak kodlu bir botum ve şu an'
-                   ' Amerikada bir yerlerde kodum çalışıyor. Kodlarıma <https://github.com/katurkmen/KaanBOT>'
-                   ' adresiden ulaşabilirsiniz. Eğer ki çevirimdışı olursam fazla üzülmeyin, tahminen sunucum yeniden'
-                   ' başlatılmıştır veya kodum güncelleniyordur. Eğer bir hatam olursa, Kaan\'a bildirebilirsin.'
-                   ' İyi eğlenceler!')
-
+    await ctx.send("""
+Merhaba! Ben KaanBOT, Kaan\'ın kodladığı açık kaynak kodlu bir botum ve şu an
+Amerikada bir yerlerde kodum çalışıyor. Kodlarıma <https://github.com/katurkmen/KaanBOT>
+adresiden ulaşabilirsiniz. Eğer ki çevirimdışı olursam fazla üzülmeyin, tahminen sunucum yeniden
+Eğer ki çevirimdışı olursam fazla üzülmeyin, tahminen sunucum yeniden başlatılmıştır ve
+sunucunun açılması normalden daha uzun sürmüştür. Eğer bir hatam olursa, Kaan\'a bildirebilirsin.
+başlatılmıştır veya kodum güncelleniyordur. Eğer bir hatam olursa, Kaan\'a bildirebilirsin.
+İyi eğlenceler!
+""")
 
 # Custom command
 @client.command()
 async def neyebenziyorsun(ctx):
-
-    await ctx.send('Tahminen şöyle bir şeye:\nhttps://giphy.com/gifs/code-coding-seamless-xT9IgzoKnwFNmISR8I')
-
+    buffer = requests.get('https://raw.githubusercontent.com/katurkmen/KaanBOT/master/main.py').text.split('#')
+    await ctx.send('Tahminen şöyle bir şeye: \n```python\n#' + buffer[random.randint(5, len(buffer) - 1)] + "\n```")
 
 # Custom command
 @client.command()
 async def selam(ctx, member: discord.Member = None):
-
     if member is None:
         await ctx.send(f'Selaaam, {ctx.author.mention}!')
     else:
         await ctx.send(f'Selaaam, {member.mention}!')
 
-
 # Custom command with aliases.
 @client.command(aliases=['y', 'yardim', 'yardım'])
 async def komutlar(ctx):
 
-    await ctx.send('Sana nasıl yardımcı olabilirim? \n\n.pastebin\n.ping\n.senkimsin\n.selam\n.acikkaynakkod'
-                   '\n.neyebenziyorsun\n.sosyal\n\nEğer ki sahip olmam gereken bir komut isterseniz, bunu Kaan\'a'
-                   ' bildirebilirsiniz :)')
+    await ctx.send("""
+Sana nasıl yardımcı olabilirim? 
 
+""" + COMMAND_PREFIX + """pastebin
+""" + COMMAND_PREFIX + """ping
+""" + COMMAND_PREFIX + """senkimsin
+""" + COMMAND_PREFIX + """selam
+""" + COMMAND_PREFIX + """sosyal
+""" + COMMAND_PREFIX + """acikkaynakkod
+""" + COMMAND_PREFIX + """neyebenziyorsun
+
+Eğer ki sahip olmam gereken bir komut isterseniz, 
+bunu Kaan\'a' bildirebilirsiniz :)
+""")
 
 # Custom command
 @client.command()
 async def acikkaynakkod(ctx):
-
     await ctx.send('CS Türkiye <3 Açık Kaynak Kod!\nTakipte Kalın: <https://github.com/katurkmen/>')
-
 
 # Custom command
 @client.command()
 async def projeler(ctx):
-
-    await ctx.send('Şu an üstünde çalıştığım projeler:\n1) Selenium ile Web Scrapping Projesi (Java)\n'
-                   '2) Oyun Projesi (Python)\n3) Discord Bot Projesi (Python)')
-
+    await ctx.send("""
+Şu an üstünde çalıştığım projeler:
+1) Selenium ile Web Scrapping Projesi (Java)
+2) Oyun Projesi (Python)
+3) Discord Bot Projesi (Python)
+""")
 
 # If user tries to use some command which users does not have permission to use, replying it with error message.
 @client.event
@@ -218,13 +218,17 @@ async def on_command_error(ctx, error):
     else:
         print(error)
 
-
 @client.command()
 async def sosyal(ctx):
+    await ctx.send("""
+● Youtube: <https://www.youtube.com/channel/UCyd_GxfGPpWtx9upRc7arhg>
+● Github: <https://github.com/katurkmen/>
+● Twitter: <https://twitter.com/katurkmenn/>
+● Instagram: <https://instagram.com/katurkmenn/>
+""")
 
-    await ctx.send('● Youtube: <https://www.youtube.com/channel/UCyd_GxfGPpWtx9upRc7arhg>\n\n'
-                   '● Github: <https://github.com/katurkmen/>\n\n● Twitter: <https://twitter.com/katurkmenn/>\n\n'
-                   '● Instagram: <https://instagram.com/katurkmenn/>')
+"""
+!!!!!!!DISABLED FOR TESTING PURPOSES!!!!!!!
 
 # Bans user.
 @client.command()
@@ -232,7 +236,17 @@ async def istek(ctx, *, request):
 
 
     await ctx.send(f'İsteğin kaydedildi. Teşekkür ederiz!')
+"""
 
 
-# Running the bot.
-client.run(BOT_TOKEN)
+
+# Shutdown Catcher & Ignition
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Goodbye!')
+        try:
+            os._exit(0)
+        except SystemExit:
+            os._exit(0)
