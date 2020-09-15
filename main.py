@@ -5,16 +5,7 @@ import discord
 from discord.ext.commands import MissingPermissions
 from discord.ext import commands, tasks
 from datetime import datetime
-
-# Control Panel for easy editing.
-BOT_TOKEN = String
-COMMAND_PREFIX = Character or String
-SERVER_ID = Int
-SERVER_LOG_CHANNEL_ID = Int
-ADMINS_USER_ID = Int
-CHANNEL_TO_UPDATE = Int
-ADMIN_ROLE = 'Kaan'
-MODERATOR_ROLE = 'Moderatör'
+from Settings import *
 
 
 # Creating bot.
@@ -87,7 +78,7 @@ async def update_user_count():
 
     global last_update_time
 
-    channel_to_change = client.get_channel(CHANNEL_TO_UPDATE)
+    channel_to_change = client.get_channel(CHANNEL_TO_UPDATE_ID)
     guild = client.get_guild(SERVER_ID)
 
     last_update_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -141,14 +132,22 @@ async def unban(ctx, *, member):
             await ctx.send(f'{user.mention} isimli kullanıcının banı kaldırıldı.')
             return
 
+# Custom command
+@client.command()
+@commands.has_role(ADMIN_ROLE)
+async def guncelleme(ctx):
+
+    global last_update_time
+
+    await ctx.send(f'Son kişi sayısı güncellemesi: {last_update_time}')
 
 # Commands which give information about certain topics and usable by all member is given below this line. #
 
 # Custom command
 @client.command()
-async def ubuntu(ctx):
+async def pastebin(ctx):
 
-    await ctx.send('Ehmm... Sanırım kodu ubuntu code share\'dan paylaşman gerekiyordu. Kuralları okumuştun değil mi?'
+    await ctx.send('Ehmm... Sanırım kodu ubuntu pastebin\'den paylaşman gerekiyordu. Kuralları okumuştun değil mi?'
                    ' :scream_cat:\nhttps://paste.ubuntu.com/')
 
 
@@ -163,9 +162,11 @@ async def ping(ctx):
 @client.command()
 async def senkimsin(ctx):
 
-    await ctx.send('Merhaba! Ben KaanBOT, beni Kaan kodladı ve şu an Amerikada bir yerlerde kodum çalışıyor.'
-                   ' Eğer ki çevirimdışı olursam fazla üzülmeyin, tahminen sunucum yeniden başlatılmıştır ve'
-                   ' sunucunun açılması normalden daha uzun sürmüştür. Eğer bir hatam olursa, Kaan\'a bildirebilirsin.')
+    await ctx.send('Merhaba! Ben KaanBOT, Kaan\'ın kodladığı açık kaynak kodlu bir botum ve şu an'
+                   ' Amerikada bir yerlerde kodum çalışıyor. Kodlarıma <https://github.com/katurkmen/KaanBOT>'
+                   ' adresiden ulaşabilirsiniz. Eğer ki çevirimdışı olursam fazla üzülmeyin, tahminen sunucum yeniden'
+                   ' başlatılmıştır veya kodum güncelleniyordur. Eğer bir hatam olursa, Kaan\'a bildirebilirsin.'
+                   ' İyi eğlenceler!')
 
 
 # Custom command
@@ -189,8 +190,8 @@ async def selam(ctx, member: discord.Member = None):
 @client.command(aliases=['y', 'yardim', 'yardım'])
 async def komutlar(ctx):
 
-    await ctx.send('Sana nasıl yardımcı olabilirim? \n\n.ubuntu\n.ping\n.senkimsin\n.selam\n.acikkaynakkod'
-                   '\n.neyebenziyorsun\n\nEğer ki sahip olmam gereken bir komut isterseniz, bunu Kaan\'a'
+    await ctx.send('Sana nasıl yardımcı olabilirim? \n\n.pastebin\n.ping\n.senkimsin\n.selam\n.acikkaynakkod'
+                   '\n.neyebenziyorsun\n.sosyal\n\nEğer ki sahip olmam gereken bir komut isterseniz, bunu Kaan\'a'
                    ' bildirebilirsiniz :)')
 
 
@@ -198,7 +199,7 @@ async def komutlar(ctx):
 @client.command()
 async def acikkaynakkod(ctx):
 
-    await ctx.send('CS Türkiye <3 Açık Kaynak Kod!\nTakipte Kalın: https://github.com/katurkmen/')
+    await ctx.send('CS Türkiye <3 Açık Kaynak Kod!\nTakipte Kalın: <https://github.com/katurkmen/>')
 
 
 # Custom command
@@ -209,16 +210,6 @@ async def projeler(ctx):
                    '2) Oyun Projesi (Python)\n3) Discord Bot Projesi (Python)')
 
 
-# Custom command
-@client.command()
-@commands.has_role(ADMIN_ROLE)
-async def guncelleme(ctx):
-
-    global last_update_time
-
-    await ctx.send(f'Son kişi sayısı güncellemesi: {last_update_time}')
-
-
 # If user tries to use some command which users does not have permission to use, replying it with error message.
 @client.event
 async def on_command_error(ctx, error):
@@ -226,6 +217,21 @@ async def on_command_error(ctx, error):
         await ctx.send(":x: Bunu yapmaya yetkin yok!")
     else:
         print(error)
+
+
+@client.command()
+async def sosyal(ctx):
+
+    await ctx.send('● Youtube: <https://www.youtube.com/channel/UCyd_GxfGPpWtx9upRc7arhg>\n\n'
+                   '● Github: <https://github.com/katurkmen/>\n\n● Twitter: <https://twitter.com/katurkmenn/>\n\n'
+                   '● Instagram: <https://instagram.com/katurkmenn/>')
+
+# Bans user.
+@client.command()
+async def istek(ctx, *, request):
+
+
+    await ctx.send(f'İsteğin kaydedildi. Teşekkür ederiz!')
 
 
 # Running the bot.
