@@ -1,11 +1,14 @@
-BOT_TOKEN = ""
-COMMAND_PREFIX = ""
+BOT_TOKEN = ''
+COMMAND_PREFIX = '.'
 SERVER_ID = 0
 SERVER_LOG_CHANNEL_ID = 0
 ADMINS_USER_ID = 0
 CHANNEL_TO_UPDATE_ID = 0
-ADMIN_ROLE = ""
-MODERATOR_ROLE = ""
+ADMIN_ROLE = ''
+MODERATOR_ROLE = ''
+EMAIL_ADDRESS = ''
+EMAIL_PASSWORD = ''
+
 
 """
 This file is created for inputting constants.
@@ -21,8 +24,11 @@ This file is created for inputting constants.
 :type COMMAND_PREFIX: Char or String
 :type ADMIN_ROLE: Char or String
 :type MODERATOR_ROLE: Char or String
+:type EMAIL_ADDRESS: Char or String
+:type EMAIL_PASSWORD: Char or String
 :type SERVER_ID: Int
 :type SERVER_LOG_CHANNEL_ID: Int
 :type ADMINS_USER_ID: Int
 :type CHANNEL_TO_UPDATE_ID: Int
+
 """

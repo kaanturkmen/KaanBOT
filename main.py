@@ -3,9 +3,12 @@ import discord
 from discord.ext.commands import MissingPermissions
 from discord.ext import commands, tasks
 
+from Email import send_email
+
 import random
 import requests
 from datetime import datetime
+import json
 
 from Settings import *
 
@@ -15,10 +18,31 @@ client = commands.Bot(command_prefix=COMMAND_PREFIX)
 # Current time.
 last_update_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+date = datetime.today().strftime('%Y-%m-%d')
+
+# Email Dictionary
+email_dict = {}
+
 
 # Running the bot.
 def main():
     client.run(BOT_TOKEN)
+
+
+def check_if_university(user_email: str):
+    try:
+        pure_email = user_email.strip().split('@')
+        after_at = pure_email[1]
+        split_from_dots = after_at.split('.')
+        last_two_parts = split_from_dots[len(split_from_dots) - 2], split_from_dots[len(split_from_dots) - 1]
+
+        for element in last_two_parts:
+            if element == 'edu':
+                return True
+
+        return False
+    except:
+        return None
 
 
 # <- It is put intentionally for parsing.
@@ -46,6 +70,7 @@ async def on_ready():
 
     # Starting user count method.
     update_user_count.start()
+    save_and_delete_emails.start()
 
     # Printing information of bot on the console.
     print("\nPowered by KaanBot Base\n-------------------------------------\n%s hazır!\ndiscord.py Versiyonu:"
@@ -61,12 +86,13 @@ async def on_member_join(member):
 
     await channel.send(f'<@!{str(ADMINS_USER_ID)}> | {member.mention} sunucuya katıldı!')
     await member.send(
-        f"Selam {member.mention}! Ben KaanBOT. CS Türkiye sunucusunun kodladığı bir botum ve bu sunucuda sana çeşitli"
+        f"Selam {member.mention}! Ben KaanBOT. CS Türkiye sunucusunun moderasyonunu sağlamakla görevliyim ve"
+        f" bu sunucuda sana çeşitli"
         f" konularda yardım edeceğim. Öncelikle CS Türkiye discord sunucumuza hoş geldin! Seninle beraber"
-        f" {guild.member_count - bot_count()} kişi olduk, katıldığın için çok mutluyuz. Bir sürü üniversite ve bölümden"
+        f" {guild.member_count - bot_count()} kişi olduk, katıldığın için çok mutluyuz. Birçok üniversite ve bölümden"
         f" insanların bulunduğu bu sunucuda umarım eğlenirsin. Bunlara ek olarak yazılımla ilgili her şey bu sunucuda"
         f" var,  dilediğinde insanlara yardım edip dilediğinde ise insanlardan yardım alabilirsin. İlk mesajını atmadan"
-        f" önce kuralları okumayı unutma ve memnun kalmadığın bir şey olursa @Kaan ve @Moderatör taglarıyla mutlaka"
+        f" önce kuralları okumayı unutma ve memnun kalmadığın bir şey olursa @Kaan veya @Moderatör taglarıyla mutlaka"
         f" bize ulaş. Kendine iyi bak, iyi eğlenceler! :computer:")
 
 
@@ -153,8 +179,8 @@ async def ping(ctx):
 @client.command()
 async def senkimsin(ctx):
     await ctx.send("Merhaba! Ben KaanBOT, Kaan\'ın kodladığı açık kaynak kodlu bir botum ve şu an"
-                   " Amerikada bir yerlerde kodum çalışıyor. Kodlarıma <https://github.com/katurkmen/KaanBOT>"
-                   " adresiden ulaşabilirsiniz. Eğer ki çevirimdışı olursam fazla üzülmeyin, tahminen sunucum yeniden"
+                   " Amerika'da bir yerlerde kodum çalışıyor. Kodlarıma <https://github.com/katurkmen/KaanBOT>"
+                   " adresiden ulaşabilirsiniz. Eğer ki çevrim dışı olursam fazla üzülmeyin, tahminen sunucum yeniden"
                    " başlatılmıştır veya kodum güncelleniyordur. Eğer bir hatam olursa, Kaan\'a bildirebilirsin."
                    " İyi eğlenceler!")
 
@@ -227,6 +253,119 @@ async def istek(ctx, *, request=None):
                            f" komut isteği: {request}")
     else:
         await ctx.send(f"Lütfen geçerli bir istek giriniz. Örneğin,\n\n{COMMAND_PREFIX}istek Müzik özelliği eklenmeli!")
+
+
+@client.command()
+async def basvuru(ctx, email=None, *, major=None):
+    await ctx.channel.purge(limit=1)
+
+    channel = client.get_channel(SERVER_LOG_CHANNEL_ID)
+
+    if email is not None:
+        user_id = ctx.message.author.id
+
+        if MODERATOR_ROLE.lower() in [x.name.lower() for x in ctx.message.author.roles] or ADMIN_ROLE.lower() in [
+            y.name.lower() for y in ctx.message.author.roles]:
+            user_email = email
+            is_university_email = check_if_university(user_email)
+            if is_university_email:
+                user_n = ctx.message.author.name
+                user_key = send_email(user_n, email)
+                if user_key is None:
+                    await ctx.send(f':warning: {ctx.author.mention}, bir şeyler yanlış gitti.'
+                                   f' <@!{str(ADMINS_USER_ID)}>')
+                else:
+                    await ctx.send(f':white_check_mark: {ctx.author.mention}, üniversite rolü başvurunuz alınmıştır.'
+                                   f' Mailinizi kontrol ediniz!')
+            else:
+                await ctx.send(f':x: {ctx.author.mention}, girdiğiniz mail adresi bir üniversiteye ait değildir,'
+                               f' lütfen tekrar deneyiniz.')
+        else:
+            if user_id not in email_dict:
+                user_email = email
+                is_university_email = check_if_university(user_email)
+                user_major = major
+                if is_university_email:
+                    user_n = ctx.message.author.name
+                    d
+                    user_key = send_email(user_n, email)
+                    if user_major is not None:
+                        if user_key is None:
+                            await ctx.send(f':warning: {ctx.author.mention}, bir şeyler yanlış gitti.'
+                                           f' <@!{str(ADMINS_USER_ID)}>')
+                        else:
+                            email_dict[user_id] = (user_n, int(user_key), user_email, user_major)
+                            await ctx.send(
+                                f':white_check_mark: {ctx.author.mention}, üniversite rolü başvurunuz alınmıştır.'
+                                f' Mailinizi kontrol ediniz!')
+                            await channel.send(
+                                f'<@!{str(ADMINS_USER_ID)}> | {ctx.author.mention}\'nin üniversite başvurusu'
+                                f' rolü {user_major}. Lütfen rol verebilirsin mesajını bekleyiniz.')
+
+                    else:
+                        await ctx.send(f':x: {ctx.author.mention}, lütfen başvuru yaparken bölümünüzü belirtiniz.')
+                else:
+                    await ctx.send(f':x: {ctx.author.mention}, girdiğiniz mail adresi bir üniversiteye ait değildir,'
+                                   f' lütfen üniversite maili giriniz.')
+            else:
+                await ctx.send(f':warning: {ctx.author.mention}, başvurunuz mevcut. Lütfen mailinize gelen kodu'
+                               f' .onayla kod şeklinde bize bildiriniz.')
+    else:
+        await ctx.send(f':warning: {ctx.author.mention}, lütfen bir mail adresi giriniz.')
+
+
+@client.command()
+async def onayla(ctx, code):
+    await ctx.channel.purge(limit=1)
+    user_id = ctx.message.author.id
+    channel = client.get_channel(SERVER_LOG_CHANNEL_ID)
+
+    if user_id in email_dict.keys():
+        if email_dict[user_id][1] == int(code):
+            await ctx.send(f':white_check_mark: {ctx.author.mention}, başarılı bir şekilde onaylandınız. Yetkililer'
+                           f' sizi gerekli role atayacaklardır, iyi eğlenceler!')
+            await channel.send(f'<@!{str(ADMINS_USER_ID)}> | {ctx.author.mention}\'nin üniversite başvurusu'
+                               f' onaylanmıştır. Rol verebilirsiniz.')
+
+        else:
+            await ctx.send(':x: Girmiş olduğunuz kod hatalı, lütfen kontrol edip bir daha deneyiniz.')
+    else:
+        await ctx.send(':warning: Başvurunuz bulunamadı, lütfen .basvuru mail yazarak bir başvuru yapınız.')
+
+
+@tasks.loop(minutes=1440)
+async def save_and_delete_emails():
+    global date
+    date = datetime.today().strftime('%Y-%m-%d')
+
+    with open('logs/' + date + '.txt', 'w') as f:
+        f.write(json.dumps(email_dict))
+
+
+@client.command()
+@commands.has_role(ADMIN_ROLE)
+async def kayitlog(ctx):
+    channel = await ctx.author.create_dm()
+    await channel.send(email_dict)
+
+
+@client.command()
+@commands.has_role(ADMIN_ROLE)
+async def kayitsil(ctx, member: discord.Member):
+    key = member.id
+    channel = client.get_channel(SERVER_LOG_CHANNEL_ID)
+
+    await channel.send(f'{ctx.author.mention} isimli yetkili kayıtsil methodunu çalıştırdı.')
+
+    if key in email_dict.keys():
+        await channel.send(f'``` {key, email_dict.get(key)} isimli girdi silindi.```')
+
+        email_dict.pop(key, None)
+        await ctx.send(f'{member.mention}\'ın kaydı silindi.')
+    else:
+        await ctx.send(f'{member.mention} ile ilgili kayıt bulunamadı.')
+
+        await channel.send(f'Bir girdi silinmedi.')
 
 
 if __name__ == '__main__':
