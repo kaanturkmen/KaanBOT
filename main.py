@@ -143,7 +143,7 @@ async def ban(ctx, member: discord.Member, *, reason=None):
 @commands.has_any_role(ADMIN_ROLE, MODERATOR_ROLE)
 async def unban(ctx, *, member):
     banned_users = await ctx.guild.bans()
-    member_name, member_discriminator = member.split('#')
+    member_name, member_discriminator = member.split(MEMBER_DISCRIMINATOR_SIGN)
 
     for ban_entry in banned_users:
         user = ban_entry.user
@@ -255,6 +255,7 @@ async def istek(ctx, *, request=None):
         await ctx.send(f"Lütfen geçerli bir istek giriniz. Örneğin,\n\n{COMMAND_PREFIX}istek Müzik özelliği eklenmeli!")
 
 
+# Custom Command
 @client.command()
 async def basvuru(ctx, email=None, *, major=None):
     await ctx.channel.purge(limit=1)
@@ -316,6 +317,7 @@ async def basvuru(ctx, email=None, *, major=None):
         await ctx.send(f':warning: {ctx.author.mention}, lütfen bir mail adresi giriniz.')
 
 
+# Custom Command
 @client.command()
 async def onayla(ctx, code):
     await ctx.channel.purge(limit=1)
@@ -357,13 +359,81 @@ async def save_and_delete_emails():
         f.write(json.dumps(email_dict))
 
 
+# Custom Command
+@client.command()
+@commands.has_any_role(ADMIN_ROLE, MODERATOR_ROLE)
+async def botbildir(ctx, channel: discord.TextChannel, *, msg: str):
+    channel = client.get_channel(channel.id)
+    await channel.send(msg)
+
+
+# Custom Command
+@client.command()
+@commands.has_role(ADMIN_ROLE)
+async def botdm(ctx, member: discord.Member, *, msg: str):
+    channel = await member.create_dm()
+    msg += "\n\n```NOT: KaanBOT'a Atılan Mesajlar Bize Ulaşmamaktadır.```"
+    await channel.send(msg)
+
+
+# Custom Command
 @client.command()
 @commands.has_role(ADMIN_ROLE)
 async def kayitlog(ctx):
     channel = await ctx.author.create_dm()
     await channel.send(email_dict)
 
+# Custom Command
+@client.command()
+@commands.is_owner()
+async def offlineol(ctx, channel: discord.TextChannel):
+    channel = client.get_channel(channel.id)
 
+    msg = """
+```
+KaanBOT kapatılıyor, ikinci bir duyuruya kadar lütfen komutlarımı kullanmaya çalışmayınız!
+
+Kapatılma nedenim şunlardan biri olabilir:
+\t ● Sunucuma güncelleme geldi ve yeniden başlatılıyorum.
+\t ● Bana yeni komutlar ekleniyor ve artık daha fazla komut destekleyeceğim.
+\t ● Kodumda olmaması gereken bir hata farkedildi ve bunu düzeltmek istiyorlar.
+
+En azından bana söylenen bu şekilde, beni geliştirenler her bilgiyi benimle paylaşmıyorlar :(
+
+Görüşmek üzere! ^-^
+
+Computer Science Türkiye
+```
+"""
+    await channel.send(msg + "||@everyone||")
+    print("Bot kapatiliyor.")
+    await ctx.bot.logout()
+
+# Custom Command
+@client.command()
+@commands.is_owner()
+async def onlineol(ctx, channel: discord.TextChannel):
+    channel = client.get_channel(channel.id)
+
+    msg = """
+```
+KaanBOT aktif, sizi yeniden gördüğüme sevindim!
+
+Kodumda nelerin değiştiğini öğrenmek isterseniz githubdaki commitlerime bakabilirsiniz.
+
+Buralarda olacağım, hepinize iyi eğlenceler. ^-^
+
+Computer Science Türkiye
+```
+Değişen kodları görmek için:
+<https://github.com/katurkmen/KaanBOT/commits/master>
+
+"""
+
+    await channel.send(msg + "||@everyone||")
+
+
+# Custom Command
 @client.command()
 @commands.has_role(ADMIN_ROLE)
 async def kayitsil(ctx, member: discord.Member):
