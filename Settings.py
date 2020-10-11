@@ -8,7 +8,7 @@ ADMIN_ROLE = ''
 MODERATOR_ROLE = ''
 EMAIL_ADDRESS = ''
 EMAIL_PASSWORD = ''
-
+MEMBER_DISCRIMINATOR_SIGN = "#"
 
 """
 This file is created for inputting constants.
@@ -20,12 +20,16 @@ This file is created for inputting constants.
 :param SERVER_LOG_CHANNEL_ID: ID of your logs channel. It should be a text channel.
 :param ADMINS_USER_ID: Admin's ID for mentioning you when someone joins or leaves.
 :param CHANNEL_TO_UPDATE_ID: Voice channel for updating how many users are in the server.
+:param MEMBER_DISCRIMINATOR_SIGN: Sign created by discord to seperate id and nickname.
+:type EMAIL_ADDRESS: Mail address of the server.
+:type EMAIL_PASSWORD: Mail password of the server.
 :type BOT_TOKEN: String
 :type COMMAND_PREFIX: Char or String
 :type ADMIN_ROLE: Char or String
 :type MODERATOR_ROLE: Char or String
 :type EMAIL_ADDRESS: Char or String
 :type EMAIL_PASSWORD: Char or String
+:type MEMBER_DISCRIMINATOR_SIGN: Char
 :type SERVER_ID: Int
 :type SERVER_LOG_CHANNEL_ID: Int
 :type ADMINS_USER_ID: Int
