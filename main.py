@@ -12,8 +12,12 @@ import json
 
 from Settings import *
 
+# Creating intents for bot privilidges.
+intents = discord.Intents()
+intents = intents.all()
+
 # Creating the bot.
-client = commands.Bot(command_prefix=COMMAND_PREFIX)
+client = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents)
 
 # Current time.
 last_update_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -94,6 +98,7 @@ async def on_member_join(member):
         f" var,  dilediğinde insanlara yardım edip dilediğinde ise insanlardan yardım alabilirsin. İlk mesajını atmadan"
         f" önce kuralları okumayı unutma ve memnun kalmadığın bir şey olursa @Kaan veya @Moderatör taglarıyla mutlaka"
         f" bize ulaş. Kendine iyi bak, iyi eğlenceler! :computer:")
+
 
 
 # Sending user joined message to the server's log channel.
