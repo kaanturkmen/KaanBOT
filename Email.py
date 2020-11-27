@@ -7,13 +7,22 @@ from Settings import *
 
 
 def send_email(username, email):
+    """
+    A function that takes parameter of username and email. Sending email to the user with using their
+    discord nickname and given email. Sending a random integer number between [100000, 999999].
+    """
+
+    # Setting username.
     user_name = username
 
+    # Setting email bot's email adress and password.
     gmail_user = EMAIL_ADDRESS
     gmail_password = EMAIL_PASSWORD
 
+    # Creating a random integer.
     random_int = random.randint(100000, 999999)
 
+    # Creating required information for sending an email.
     sent_from = 'CS Türkiye'
     to = [email]
 
@@ -37,6 +46,7 @@ def send_email(username, email):
     msg.attach(part1)
     text = msg.as_string().encode('ascii')
 
+    # Checking if something went wrong.
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.ehlo()
