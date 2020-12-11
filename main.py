@@ -89,15 +89,18 @@ async def on_member_join(member):
     channel = client.get_channel(SERVER_LOG_CHANNEL_ID)
 
     await channel.send(f'<@!{str(ADMINS_USER_ID)}> | {member.mention} sunucuya katıldı!')
-    await member.send(
-        f"Selam {member.mention}! Ben KaanBOT. CS Türkiye sunucusunun moderasyonunu sağlamakla görevliyim ve"
-        f" bu sunucuda sana çeşitli"
-        f" konularda yardım edeceğim. Öncelikle CS Türkiye discord sunucumuza hoş geldin! Seninle beraber"
-        f" {guild.member_count - bot_count()} kişi olduk, katıldığın için çok mutluyuz. Birçok üniversite ve bölümden"
-        f" insanların bulunduğu bu sunucuda umarım eğlenirsin. Bunlara ek olarak yazılımla ilgili her şey bu sunucuda"
-        f" var,  dilediğinde insanlara yardım edip dilediğinde ise insanlardan yardım alabilirsin. İlk mesajını atmadan"
-        f" önce kuralları okumayı unutma ve memnun kalmadığın bir şey olursa @Kaan veya @Moderatör taglarıyla mutlaka"
-        f" bize ulaş. Kendine iyi bak, iyi eğlenceler! :computer:")
+    try:
+        await member.send(
+            f"Selam {member.mention}! Ben KaanBOT. CS Türkiye sunucusunun moderasyonunu sağlamakla görevliyim ve"
+            f" bu sunucuda sana çeşitli"
+            f" konularda yardım edeceğim. Öncelikle CS Türkiye discord sunucumuza hoş geldin! Seninle beraber"
+            f" {guild.member_count - bot_count()} kişi olduk, katıldığın için çok mutluyuz. Birçok üniversite ve bölümden"
+            f" insanların bulunduğu bu sunucuda umarım eğlenirsin. Bunlara ek olarak yazılımla ilgili her şey bu sunucuda"
+            f" var,  dilediğinde insanlara yardım edip dilediğinde ise insanlardan yardım alabilirsin. İlk mesajını atmadan"
+            f" önce kuralları okumayı unutma ve memnun kalmadığın bir şey olursa @Kaan veya @Moderatör taglarıyla mutlaka"
+            f" bize ulaş. Kendine iyi bak, iyi eğlenceler! :computer:")
+    except discord.errors.Forbidden:
+        print("Cannot send a message to the user.")
 
 
 
