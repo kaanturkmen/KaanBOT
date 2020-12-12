@@ -49,7 +49,7 @@ def check_if_university(user_email: str):
         return None
 
 
-# <- It is put intentionally for parsing.
+# Returns bot count.
 def bot_count():
     """
     A method which counts how many bots are in the server.
@@ -76,10 +76,7 @@ async def on_ready():
     update_user_count.start()
     save_and_delete_emails.start()
 
-    # Printing information of bot on the console.
-    print("\nPowered by KaanBot Base\n-------------------------------------\n%s hazır!\ndiscord.py Versiyonu:"
-          " %s\nKomut İmleci: '%s'\n\nTüm sorularınız için: https://discord.gg/CRy8eER"
-          "\n-------------------------------------\n" % (client.user.name, discord.__version__, COMMAND_PREFIX))
+    print("Bot basarili bir sekilde baslatildi.")
 
 
 # Sending user joined message to the server's log channel and direct messages to the newcomer.
@@ -270,39 +267,46 @@ async def basvuru(ctx, email=None, *, major=None):
 
     channel = client.get_channel(SERVER_LOG_CHANNEL_ID)
 
-    if email is not None:
-        user_id = ctx.message.author.id
-        user_email = email
-        is_university_email = check_if_university(user_email)
-        user_major = major
+    user_id = ctx.message.author.id
+    user_email = email
+    is_university_email = check_if_university(user_email)
+    user_major = major
 
-        if user_id not in email_dict:
-            if is_university_email:
-                user_n = ctx.message.author.name
-                user_key = send_email(user_n, email)
-                if user_major is not None:
-                    if user_key is None:
-                        await ctx.send(f':warning: {ctx.author.mention}, bir şeyler yanlış gitti.'
-                                       f' <@!{str(ADMINS_USER_ID)}>')
-                    else:
-                        email_dict[user_id] = (user_n, int(user_key), user_email, user_major)
-                        await ctx.send(
-                            f':white_check_mark: {ctx.author.mention}, üniversite rolü başvurunuz alınmıştır.'
-                            f' Mailinizi kontrol ediniz!')
-                        await channel.send(
-                            f'<@!{str(ADMINS_USER_ID)}> | {ctx.author.mention}\'nin üniversite başvurusu'
-                            f' rolü {user_major}. Lütfen rol verebilirsin mesajını bekleyiniz.')
-
-                else:
-                    await ctx.send(f':x: {ctx.author.mention}, lütfen başvuru yaparken bölümünüzü belirtiniz.')
-            else:
-                await ctx.send(f':x: {ctx.author.mention}, girdiğiniz mail adresi bir üniversiteye ait değildir,'
-                               f' lütfen üniversite maili giriniz.')
-        else:
-            await ctx.send(f':warning: {ctx.author.mention}, başvurunuz mevcut. Lütfen mailinize gelen kodu'
-                           f' .onayla kod şeklinde bize bildiriniz.')
-    else:
+    if user_email is None:
         await ctx.send(f':warning: {ctx.author.mention}, lütfen bir mail adresi giriniz.')
+        return
+
+    if user_major is None:
+        await ctx.send(f':x: {ctx.author.mention}, lütfen başvuru yaparken bölümünüzü belirtiniz.')
+        return
+
+    if not is_university_email:
+        await ctx.send(f':x: {ctx.author.mention}, girdiğiniz mail adresi bir üniversiteye ait değildir,'
+                       f' lütfen üniversite maili giriniz.')
+        return
+
+    if user_id in email_dict:
+        await ctx.send(f':warning: {ctx.author.mention}, başvurunuz mevcut. Lütfen mailinize gelen kodu'
+                       f' .onayla kod şeklinde bize bildiriniz.')
+        return
+
+    user_n = ctx.message.author.name
+    user_key = send_email(user_n, email)
+
+    if user_key is None:
+        await ctx.send(f':warning: {ctx.author.mention}, bir şeyler yanlış gitti.'
+                       f' <@!{str(ADMINS_USER_ID)}>')
+        return
+
+    email_dict[user_id] = (user_n, int(user_key), user_email, user_major)
+
+    await ctx.send(
+        f':white_check_mark: {ctx.author.mention}, üniversite rolü başvurunuz alınmıştır.'
+        f' Mailinizi kontrol ediniz!')
+
+    await channel.send(
+        f'<@!{str(ADMINS_USER_ID)}> | {ctx.author.mention}\'nin üniversite başvurusu'
+        f' rolü {user_major}. Lütfen rol verebilirsin mesajını bekleyiniz.')
 
 
 # Custom Command
@@ -312,31 +316,18 @@ async def onayla(ctx, code):
     user_id = ctx.message.author.id
     channel = client.get_channel(SERVER_LOG_CHANNEL_ID)
 
-    if MODERATOR_ROLE.lower() in [x.name.lower() for x in ctx.message.author.roles] or ADMIN_ROLE.lower() in [
-        y.name.lower() for y in ctx.message.author.roles]:
-        if user_id in email_dict.keys():
-            if email_dict[user_id][-1][1] == int(code):
-                await ctx.send(f':white_check_mark: {ctx.author.mention}, başarılı bir şekilde onaylandınız. Yetkililer'
-                               f' sizi gerekli role atayacaklardır, iyi eğlenceler!')
-                await channel.send(f'<@!{str(ADMINS_USER_ID)}> | {ctx.author.mention}\'nin üniversite başvurusu'
-                                   f' onaylanmıştır. Rol verebilirsiniz.')
-            else:
-                await ctx.send(':x: Girmiş olduğunuz kod hatalı, lütfen kontrol edip bir daha deneyiniz.')
-        else:
-            await ctx.send(':warning: Başvurunuz bulunamadı, lütfen .basvuru mail yazarak bir başvuru yapınız.')
+    if user_id not in  email_dict.keys():
+        await ctx.send(':warning: Başvurunuz bulunamadı, lütfen .basvuru mail yazarak bir başvuru yapınız.')
+        return
 
-    else:
-        if user_id in email_dict.keys():
-            if email_dict[user_id][1] == int(code):
-                await ctx.send(f':white_check_mark: {ctx.author.mention}, başarılı bir şekilde onaylandınız. Yetkililer'
-                               f' sizi gerekli role atayacaklardır, iyi eğlenceler!')
-                await channel.send(f'<@!{str(ADMINS_USER_ID)}> | {ctx.author.mention}\'nin üniversite başvurusu'
-                                   f' onaylanmıştır. Rol verebilirsiniz.')
+    if not email_dict[user_id][1] == int(code):
+        await ctx.send(':x: Girmiş olduğunuz kod hatalı, lütfen kontrol edip bir daha deneyiniz.')
+        return
 
-            else:
-                await ctx.send(':x: Girmiş olduğunuz kod hatalı, lütfen kontrol edip bir daha deneyiniz.')
-        else:
-            await ctx.send(':warning: Başvurunuz bulunamadı, lütfen .basvuru mail yazarak bir başvuru yapınız.')
+    await ctx.send(f':white_check_mark: {ctx.author.mention}, başarılı bir şekilde onaylandınız. Yetkililer'
+                   f' sizi gerekli role atayacaklardır, iyi eğlenceler!')
+    await channel.send(f'<@!{str(ADMINS_USER_ID)}> | {ctx.author.mention}\'nin üniversite başvurusu'
+                       f' onaylanmıştır. Rol verebilirsiniz.')
 
 
 @tasks.loop(minutes=1440)
@@ -424,7 +415,7 @@ Değişen kodları görmek için:
 
 # Custom Command
 @client.command()
-@commands.has_role(ADMIN_ROLE)
+@commands.has_any_role(ADMIN_ROLE, MODERATOR_ROLE)
 async def kayitsil(ctx, member: discord.Member):
     key = member.id
     channel = client.get_channel(SERVER_LOG_CHANNEL_ID)
