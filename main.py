@@ -8,7 +8,6 @@ from Email import send_email
 import random
 import requests
 from datetime import datetime
-import json
 
 from Settings import *
 
@@ -18,6 +17,9 @@ intents = intents.all()
 
 # Creating the bot.
 client = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents)
+
+# Removing help command.
+client.remove_command('help')
 
 # Current time.
 last_update_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -33,6 +35,15 @@ def main():
     client.run(BOT_TOKEN)
 
 
+# Creates a simple format of embeddings.
+def create_embed():
+    embed = discord.Embed(title="", color=EMBED_COLOR)
+    embed.set_author(name=EMBED_NAME, url=EMBED_URL,
+                     icon_url=EMBED_ICON_URL)
+
+    return embed
+
+
 def check_if_university(user_email: str):
     try:
         pure_email = user_email.strip().split('@')
@@ -45,7 +56,8 @@ def check_if_university(user_email: str):
                 return True
 
         return False
-    except:
+    except Exception as e:
+        print(e)
         return None
 
 
@@ -74,9 +86,8 @@ async def on_ready():
 
     # Starting user count method.
     update_user_count.start()
-    save_and_delete_emails.start()
 
-    print("Bot basarili bir sekilde baslatildi.")
+    print("Bot is running.")
 
 
 # Sending user joined message to the server's log channel and direct messages to the newcomer.
@@ -85,7 +96,13 @@ async def on_member_join(member):
     guild = client.get_guild(SERVER_ID)
     channel = client.get_channel(SERVER_LOG_CHANNEL_ID)
 
-    await channel.send(f'<@!{str(ADMINS_USER_ID)}> | {member.mention} sunucuya katıldı!')
+    embed = create_embed()
+    embed.add_field(name=":warning: Bilgilendirme",
+                    value=f"{member.mention} sunucuya katıldı!", inline=False)
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+    await channel.send(embed=embed)
+
     try:
         await member.send(
             f"Selam {member.mention}! Ben KaanBOT. CS Türkiye sunucusunun moderasyonunu sağlamakla görevliyim ve"
@@ -100,12 +117,17 @@ async def on_member_join(member):
         print("Cannot send a message to the user.")
 
 
-
 # Sending user joined message to the server's log channel.
 @client.event
 async def on_member_remove(member):
     channel = client.get_channel(SERVER_LOG_CHANNEL_ID)
-    await channel.send(f"<@!{str(ADMINS_USER_ID)}> | {member.mention} sunucudan çıktı!")
+    embed = create_embed()
+
+    embed.add_field(name=":warning: Bilgilendirme",
+                    value=f"{member.mention} sunucudan çıktı!", inline=False)
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+    await channel.send(embed=embed)
 
 
 # Keeps track of user count in the server by renaming specified voice channel every 10 minutes.
@@ -124,7 +146,13 @@ async def update_user_count():
 async def clear(ctx, amount=5):
     amount += 1
     await ctx.channel.purge(limit=amount)
-    await ctx.send(f"{amount} tane mesaj silindi.")
+
+    embed = create_embed()
+    embed.add_field(name=":warning: Bilgilendirme",
+                    value=f"{amount} tane mesaj silindi.", inline=False)
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+    await ctx.send(embed=embed)
 
 
 # Kicks user.
@@ -132,7 +160,13 @@ async def clear(ctx, amount=5):
 @commands.has_any_role(ADMIN_ROLE, MODERATOR_ROLE)
 async def kick(ctx, member: discord.Member, *, reason=None):
     await member.kick(reason=reason)
-    await ctx.send(f"{member.mention} isimli kullanıcı sunucudan atıldı.")
+
+    embed = create_embed()
+    embed.add_field(name=":warning: Bilgilendirme",
+                    value=f"{member.mention} isimli kullanıcı sunucudan atıldı.", inline=False)
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+    await ctx.send(embed=embed)
 
 
 # Bans user.
@@ -140,7 +174,13 @@ async def kick(ctx, member: discord.Member, *, reason=None):
 @commands.has_any_role(ADMIN_ROLE, MODERATOR_ROLE)
 async def ban(ctx, member: discord.Member, *, reason=None):
     await member.ban(reason=reason)
-    await ctx.send(f"{member.mention} isimli kullanıcı banlandı.")
+
+    embed = create_embed()
+    embed.add_field(name=":warning: Bilgilendirme",
+                    value=f"{member.mention} isimli kullanıcı sunucudan yasaklandı.", inline=False)
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+    await ctx.send(embed=embed)
 
 
 # Unbans user.
@@ -155,85 +195,84 @@ async def unban(ctx, *, member):
 
         if (user.name, user.discriminator) == (member_name, member_discriminator):
             await ctx.guild.unban(user)
-            await ctx.send(f"{user.mention} isimli kullanıcının banı kaldırıldı.")
+
+            embed = create_embed()
+            embed.add_field(name=":warning: Bilgilendirme",
+                            value=f"{user.mention} isimli kullanıcının banı kaldırıldı.", inline=False)
+            embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+            await ctx.send(embed=embed)
             return
-
-
-# updates user count on server.
-@client.command()
-@commands.has_role(ADMIN_ROLE)
-async def guncelleme(ctx):
-    global last_update_time
-    await ctx.send(f"Son kişi sayısı güncellemesi: {last_update_time}")
-
-
-# Custom command
-@client.command()
-async def pastebin(ctx):
-    await ctx.send("Ehmm... Sanırım kodu ubuntu pastebin\'den paylaşman gerekiyordu. Kuralları okumuştun değil mi?"
-                   " :scream_cat:\nhttps://paste.ubuntu.com/")
 
 
 # Custom command
 @client.command()
 async def ping(ctx):
-    await ctx.send(f"Pingin şu anda {round(client.latency * 1000)}ms.")
+    embed = create_embed()
+    embed.add_field(name=":warning: Bilgilendirme",
+                    value=f"Pingim şu anda {round(client.latency * 1000)}ms.", inline=False)
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
 
-
-# Custom command
-@client.command()
-async def senkimsin(ctx):
-    await ctx.send("Merhaba! Ben KaanBOT, Kaan\'ın kodladığı açık kaynak kodlu bir botum ve şu an"
-                   " Amerika'da bir yerlerde kodum çalışıyor. Kodlarıma <https://github.com/katurkmen/KaanBOT>"
-                   " adresiden ulaşabilirsiniz. Eğer ki çevrim dışı olursam fazla üzülmeyin, tahminen sunucum yeniden"
-                   " başlatılmıştır veya kodum güncelleniyordur. Eğer bir hatam olursa, Kaan\'a bildirebilirsin."
-                   " İyi eğlenceler!")
+    await ctx.send(embed=embed)
 
 
 # Custom command
 @client.command()
 async def neyebenziyorsun(ctx):
     buffer = requests.get('https://raw.githubusercontent.com/katurkmen/KaanBOT/master/main.py').text.split('#')
-    await ctx.send("Tahminen şöyle bir şeye:\n```python\n" + buffer[random.randint(5, len(buffer) - 1)] + "\n```")
+
+    embed = create_embed()
+    embed.add_field(name=":warning: Bilgilendirme",
+                    value="Tahminen şöyle bir şeye:\n```python\n" + buffer[
+                        random.randint(5, len(buffer) - 1)] + "\n```", inline=False)
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+    await ctx.send(embed=embed)
 
 
 # Custom command
 @client.command()
 async def selam(ctx, member: discord.Member = None):
+    buffer = requests.get('https://raw.githubusercontent.com/katurkmen/KaanBOT/master/main.py').text.split('#')
+
+    embed = create_embed()
+
     if member is None:
-        await ctx.send(f'Selaaam, {ctx.author.mention}!')
+        embed.add_field(name=':heart_eyes: :heart_eyes: :heart_eyes:', value=f'Selaaam, {ctx.author.mention}!',
+                        inline=False)
     else:
-        await ctx.send(f'Selaaam, {member.mention}!')
+        embed.add_field(name=':heart_eyes: :heart_eyes: :heart_eyes:', value=f'Selaaam, {member.mention}!',
+                        inline=False)
+
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+    await ctx.send(embed=embed)
 
 
 # Custom command with aliases.
 @client.command(aliases=['y', 'yardim', 'yardım'])
 async def komutlar(ctx):
-    await ctx.send("\nSana nasıl yardımcı olabilirim?\n\n" + COMMAND_PREFIX + "pastebin\n" + COMMAND_PREFIX +
-                   "ping\n" + COMMAND_PREFIX + "senkimsin\n" + COMMAND_PREFIX + "selam\n" + COMMAND_PREFIX +
-                   "sosyal\n" + COMMAND_PREFIX + "acikkaynakkod\n" + COMMAND_PREFIX + "neyebenziyorsun\n" +
-                   COMMAND_PREFIX + "istek\n\nEğer ki sahip olmam gereken bir komut isterseniz,"
-                                    " bunu Kaan\'a bildirebilirsiniz :)\n")
+    embed = create_embed()
+    embed.add_field(name=":warning: Bilgilendirme",
+                    value="\nSana nasıl yardımcı olabilirim?\n\n" + COMMAND_PREFIX + "ping\n" + COMMAND_PREFIX + "selam\n"
+                          + COMMAND_PREFIX + "sosyal\n" + COMMAND_PREFIX + "neyebenziyorsun\n" + COMMAND_PREFIX +
+                          "istek\n\nEğer ki sahip olmam gereken bir komut isterseniz, bunu Kaan\'a bildirebilirsiniz"
+                          " :)\n", inline=False)
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
 
-
-# Custom command
-@client.command()
-async def acikkaynakkod(ctx):
-    await ctx.send('CS Türkiye <3 Açık Kaynak Kod!\nTakipte Kalın: <https://github.com/katurkmen/>')
-
-
-# Custom command
-@client.command()
-async def projeler(ctx):
-    await ctx.send("Şu an üstünde çalıştığım projeler:\n1) Selenium ile Web Scrapping Projesi (Java)\n2) Oyun Projesi"
-                   " (Python)\n3) Discord Bot Projesi (Python)")
+    await ctx.send(embed=embed)
 
 
 # If user tries to use some command which users does not have permission to use, replying it with error message.
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, discord.ext.commands.errors.CheckFailure):
-        await ctx.send(":x: Bunu yapmaya yetkin yok!")
+        embed = create_embed()
+        embed.add_field(name=":x: İşlem Başarısız.",
+                        value="Bunu yapmaya yetkin yok.", inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+        await ctx.send(embed=embed)
     else:
         print(error)
 
@@ -241,23 +280,47 @@ async def on_command_error(ctx, error):
 # Custom Command
 @client.command()
 async def sosyal(ctx):
-    await ctx.send("● Youtube: <https://www.youtube.com/channel/UCyd_GxfGPpWtx9upRc7arhg>\n\n"
-                   "● Github: <https://github.com/katurkmen/>\n\n● Twitter: <https://twitter.com/katurkmenn/>\n\n"
-                   "● Instagram: <https://instagram.com/katurkmenn/>\n\n")
+    embed = create_embed()
+    embed.add_field(name=":warning: Bilgilendirme",
+                    value="● Youtube: <https://www.youtube.com/channel/UCyd_GxfGPpWtx9upRc7arhg>\n\n"
+                          "● Github: <https://github.com/katurkmen/>\n\n● Twitter: <https://twitter.com/katurkmenn/>\n\n"
+                          "● Instagram: <https://instagram.com/katurkmenn/>\n\n", inline=False)
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+    await ctx.send(embed=embed)
 
 
 # Custom Command
 @client.command()
 async def istek(ctx, *, request=None):
     if request is not None:
-        await ctx.send(f"İsteğin kaydedildi. Teşekkür ederiz!")
+
+        embed = create_embed()
+        embed.add_field(name=":warning: Bilgilendirme",
+                        value="İsteğin kaydedildi. Teşekkür ederiz!", inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+        await ctx.send(embed=embed)
 
         channel = client.get_channel(SERVER_LOG_CHANNEL_ID)
 
-        await channel.send(f"<@!{str(ADMINS_USER_ID)}> | {ctx.author.mention}\'dan gelen"
-                           f" komut isteği: {request}")
+        embed = create_embed()
+        embed.add_field(name=":warning: Bilgilendirme",
+                        value=f"{ctx.author.mention}\'dan gelen"
+                              f" komut isteği: {request}", inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+        await channel.send(embed=embed)
+
     else:
-        await ctx.send(f"Lütfen geçerli bir istek giriniz. Örneğin,\n\n{COMMAND_PREFIX}istek Müzik özelliği eklenmeli!")
+
+        embed = create_embed()
+        embed.add_field(name=":warning: Bilgilendirme",
+                        value=f"Lütfen geçerli bir istek girin. Örneğin,\n\n{COMMAND_PREFIX}istek Müzik özelliği eklenmeli!",
+                        inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+        await ctx.send(embed=embed)
 
 
 # Custom Command
@@ -273,70 +336,120 @@ async def basvuru(ctx, email=None, *, major=None):
     user_major = major
 
     if user_email is None:
-        await ctx.send(f':warning: {ctx.author.mention}, lütfen bir mail adresi giriniz.')
+        embed = create_embed()
+        embed.add_field(name=":x: İşlem başarısız.",
+                        value=f"{ctx.author.mention} | Lütfen bir mail adresi girin.",
+                        inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+        await ctx.send(embed=embed)
         return
 
     if user_major is None:
-        await ctx.send(f':x: {ctx.author.mention}, lütfen başvuru yaparken bölümünüzü belirtiniz.')
+        embed = create_embed()
+        embed.add_field(name=":x: İşlem başarısız.",
+                        value=f"{ctx.author.mention} | Lütfen başvuru yaparken bölümünüzü belirtin.",
+                        inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+        await ctx.send(embed=embed)
         return
 
     if not is_university_email:
-        await ctx.send(f':x: {ctx.author.mention}, girdiğiniz mail adresi bir üniversiteye ait değildir,'
-                       f' lütfen üniversite maili giriniz.')
+        embed = create_embed()
+        embed.add_field(name=":x: İşlem başarısız.",
+                        value=f"{ctx.author.mention} | Girdiğiniz mail adresi bir üniversiteye ait değildir, lütfen"
+                              f" bir üniversite mail adresi giriniz.",
+                        inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+        await ctx.send(embed=embed)
         return
 
     if user_id in email_dict:
-        await ctx.send(f':warning: {ctx.author.mention}, başvurunuz mevcut. Lütfen mailinize gelen kodu'
-                       f' .onayla kod şeklinde bize bildiriniz.')
+        embed = create_embed()
+        embed.add_field(name=":warning: İşlem başarısız.",
+                        value=f"{ctx.author.mention} | Başvurunuz mevcut, lütfen .onayla komutu ile kendinizi"
+                              f" onaylayınız.",
+                        inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+        await ctx.send(embed=embed)
         return
 
     user_n = ctx.message.author.name
     user_key = send_email(user_n, email)
 
     if user_key is None:
-        await ctx.send(f':warning: {ctx.author.mention}, bir şeyler yanlış gitti.'
-                       f' <@!{str(ADMINS_USER_ID)}>')
+        embed = create_embed()
+        embed.add_field(name=":warning: Hata",
+                        value=f"{ctx.author.mention} | Bir şeyler yanlış gitti, lütfen bir yetkiliye bu durumu bildiriniz.",
+                        inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+        await ctx.send(embed=embed)
         return
 
     email_dict[user_id] = (user_n, int(user_key), user_email, user_major)
 
-    await ctx.send(
-        f':white_check_mark: {ctx.author.mention}, üniversite rolü başvurunuz alınmıştır.'
-        f' Mailinizi kontrol ediniz!')
+    embed = create_embed()
+    embed.add_field(name=":white_check_mark: İşlem Başarılı.",
+                    value=f"{ctx.author.mention} | Üniversite başvurunuz alınmıştır, lütfen mailinizi kontrol ediniz.",
+                    inline=False)
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+    await ctx.send(embed=embed)
 
-    await channel.send(
-        f'<@!{str(ADMINS_USER_ID)}> | {ctx.author.mention}\'nin üniversite başvurusu'
-        f' rolü {user_major}. Lütfen rol verebilirsin mesajını bekleyiniz.')
+    embed = create_embed()
+    embed.add_field(name="Üniversite Rolü Başvurusu Alındı.",
+                    value=f"{ctx.author.mention} isimli üyenin bölümü {user_major} olup üniversite rolü başvurusu alınmıştır."
+                          f" Lütfen onaylanma mesajını bekleyiniz.",
+                    inline=False)
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+    await channel.send(embed=embed)
 
 
 # Custom Command
 @client.command()
-async def onayla(ctx, code):
+async def onayla(ctx, code=None):
     await ctx.channel.purge(limit=1)
     user_id = ctx.message.author.id
     channel = client.get_channel(SERVER_LOG_CHANNEL_ID)
 
-    if user_id not in  email_dict.keys():
-        await ctx.send(':warning: Başvurunuz bulunamadı, lütfen .basvuru mail yazarak bir başvuru yapınız.')
+    if user_id not in email_dict.keys():
+        embed = create_embed()
+        embed.add_field(name=":x: İşlem Başarısız.",
+                        value=f"{ctx.author.mention} | Başvurunuz bulunamadı, lütfen .basvuru yazıp bir başvuru yapınız.",
+                        inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+        await ctx.send(embed=embed)
+        return
+
+    if code is None:
+        embed = create_embed()
+        embed.add_field(name=":x: İşlem Başarısız.",
+                        value=f"{ctx.author.mention} | Lütfen kod giriniz.",
+                        inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+        await ctx.send(embed=embed)
         return
 
     if not email_dict[user_id][1] == int(code):
-        await ctx.send(':x: Girmiş olduğunuz kod hatalı, lütfen kontrol edip bir daha deneyiniz.')
+        embed = create_embed()
+        embed.add_field(name=":x: İşlem Başarısız.",
+                        value=f"{ctx.author.mention} | Girdiğiniz kod hatalı, lütfen tekrar deneyiniz.",
+                        inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+        await ctx.send(embed=embed)
         return
 
-    await ctx.send(f':white_check_mark: {ctx.author.mention}, başarılı bir şekilde onaylandınız. Yetkililer'
-                   f' sizi gerekli role atayacaklardır, iyi eğlenceler!')
-    await channel.send(f'<@!{str(ADMINS_USER_ID)}> | {ctx.author.mention}\'nin üniversite başvurusu'
-                       f' onaylanmıştır. Rol verebilirsiniz.')
+    embed = create_embed()
+    embed.add_field(name=":white_check_mark: İşlem Başarılı.",
+                    value=f"{ctx.author.mention} | Başvurunuz onaylanmıştır. Lütfen bir yetkilinin size rol vermesini bekleyin.",
+                    inline=False)
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+    await ctx.send(embed=embed)
 
-
-@tasks.loop(minutes=1440)
-async def save_and_delete_emails():
-    global date
-    date = datetime.today().strftime('%Y-%m-%d')
-
-    with open('logs/' + date + '.txt', 'w') as f:
-        f.write(json.dumps(email_dict))
+    embed = create_embed()
+    embed.add_field(name=":white_check_mark: Kullanıcının Üniversite başvurusu onaylandı.",
+                    value=f"{ctx.author.mention}'nın üniversite başvurusu onaylanmıştır. Kullanıcıya rol verebilirsiniz.",
+                    inline=False)
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+    await channel.send(embed=embed)
 
 
 # Custom Command
@@ -363,6 +476,7 @@ async def kayitlog(ctx):
     channel = await ctx.author.create_dm()
     await channel.send(email_dict)
 
+
 # Custom Command
 @client.command()
 @commands.is_owner()
@@ -370,7 +484,7 @@ async def offlineol(ctx, channel: discord.TextChannel):
     channel = client.get_channel(channel.id)
 
     msg = """
-```
+
 KaanBOT kapatılıyor, ikinci bir duyuruya kadar lütfen komutlarımı kullanmaya çalışmayınız!
 
 Kapatılma nedenim şunlardan biri olabilir:
@@ -383,11 +497,17 @@ En azından bana söylenen bu şekilde, beni geliştirenler her bilgiyi benimle 
 Görüşmek üzere! ^-^
 
 Computer Science Türkiye
-```
+
 """
-    await channel.send(msg + "||@everyone||")
-    print("Bot kapatiliyor.")
+
+    embed = create_embed()
+    embed.add_field(name="KaanBOT aktif.",
+                    value=msg + "||@everyone||", inline=False)
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+    await channel.send(embed=embed)
+    print("Bot is being shut down.")
     await ctx.bot.logout()
+
 
 # Custom Command
 @client.command()
@@ -396,21 +516,25 @@ async def onlineol(ctx, channel: discord.TextChannel):
     channel = client.get_channel(channel.id)
 
     msg = """
-```
-KaanBOT aktif, sizi yeniden gördüğüme sevindim!
+
+Sizi yeniden gördüğüme sevindim!
 
 Kodumda nelerin değiştiğini öğrenmek isterseniz githubdaki commitlerime bakabilirsiniz.
 
 Buralarda olacağım, hepinize iyi eğlenceler. ^-^
 
 Computer Science Türkiye
-```
+
 Değişen kodları görmek için:
 <https://github.com/katurkmen/KaanBOT/commits/master>
 
 """
 
-    await channel.send(msg + "||@everyone||")
+    embed = create_embed()
+    embed.add_field(name="KaanBOT aktif.",
+                    value=msg + "||@everyone||", inline=False)
+    embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+    await channel.send(embed=embed)
 
 
 # Custom Command
@@ -420,17 +544,45 @@ async def kayitsil(ctx, member: discord.Member):
     key = member.id
     channel = client.get_channel(SERVER_LOG_CHANNEL_ID)
 
-    await channel.send(f'{ctx.author.mention} isimli yetkili kayıtsil methodunu çalıştırdı.')
+    if ctx.author.id != ADMINS_USER_ID:
+        embed = create_embed()
+        embed.add_field(name=":warning: Bilgilendirme",
+                        value=f"{ctx.author.mention} isimli yetkili kayıtsil methodunu çalıştırdı.", inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+        await channel.send(embed=embed)
 
     if key in email_dict.keys():
-        await channel.send(f'``` {key, email_dict.get(key)} isimli girdi silindi.```')
+
+        embed = create_embed()
+        embed.add_field(name=":warning: Bilgilendirme",
+                        value=f'``` {key, email_dict.get(key)} isimli girdi silindi.```', inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+        await channel.send(embed=embed)
 
         email_dict.pop(key, None)
-        await ctx.send(f'{member.mention}\'ın kaydı silindi.')
-    else:
-        await ctx.send(f'{member.mention} ile ilgili kayıt bulunamadı.')
 
-        await channel.send(f'Bir girdi silinmedi.')
+        embed = create_embed()
+        embed.add_field(name=":white_check_mark: İşlem Başarılı",
+                        value=f'{member.mention}\'ın kaydı silindi.', inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+        await channel.send(embed=embed)
+    else:
+        embed = create_embed()
+        embed.add_field(name=":white_check_mark: İşlem Başarılı",
+                        value=f'{member.mention} ile ilgili kayıt bulunamadı.', inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+        await ctx.send(embed=embed)
+
+        embed = create_embed()
+        embed.add_field(name=":x: İşlem Başarısız",
+                        value="Bir girdi silinemedi.", inline=False)
+        embed.add_field(name="İyi eğlenceler dileriz.", value="CS Türkiye Yönetimi", inline=True)
+
+        await channel.send(embed=embed)
 
 
 if __name__ == '__main__':

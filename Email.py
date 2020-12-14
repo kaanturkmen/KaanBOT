@@ -15,7 +15,7 @@ def send_email(username, email):
     # Setting username.
     user_name = username
 
-    # Setting email bot's email adress and password.
+    # Setting email bot's email address and password.
     gmail_user = EMAIL_ADDRESS
     gmail_password = EMAIL_PASSWORD
 
@@ -31,15 +31,15 @@ def send_email(username, email):
     msg["From"] = 'CS Türkiye'
     msg["To"] = email
     body = u"""
-    Merhaba %s,
-    Ben KaanBOT, CS Türkiye Discord sunucusunda moderasyonu sağlamakla görevliyim.
-    Kısa bir süre önce bir kullanıcı bu mail adresini kullanarak sunucuda kendisini onaylatmaya
-    çalıştı. Onaylanmayı sen talep etmediysen bu maili görmezden gelebilirsin. Eğer bu işlemi sen
-    gerçekleştirdiysen alt tarafta bulunan komutu universite-rolu-basvurusu odasına yazabilirsin.
+Merhaba %s,
+Ben KaanBOT, CS Türkiye Discord sunucusunda moderasyonu sağlamakla görevliyim. Kısa bir süre önce bir kullanıcı bu mail adresini kullanarak sunucuda kendisini onaylatmaya çalıştı. Onaylanmayı sen talep etmediysen bu maili görmezden gelebilirsin. Eğer bu işlemi sen gerçekleştirdiysen alt tarafta bulunan komutu universite-rolu-basvurusu odasına yazabilirsin.
 
-    .onayla %s
+.onayla %s
 
-    İyi eğlenceler!
+Not: Bu isteği bir moderatör yardımı ile gerçekleştirdiyseniz bu kodu ona söylemeniz yeterlidir.
+
+İyi eğlenceler!
+CS Türkiye Yönetimi
     """ % (user_name, random_int)
 
     part1 = MIMEText(body, "plain", "utf-8")
@@ -53,8 +53,8 @@ def send_email(username, email):
         server.login(gmail_user, gmail_password)
         server.sendmail(sent_from, to, text)
         server.close()
-    except:
-        print('Email script has an error.')
+    except Exception as e:
+        print(f'Email script has an error. {e}')
         return None
     else:
         return random_int
