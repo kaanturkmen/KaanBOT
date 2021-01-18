@@ -16,10 +16,7 @@ intents = discord.Intents()
 intents = intents.all()
 
 # Creating the bot.
-client = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents)
-
-# Removing help command.
-client.remove_command('help')
+client = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents, help_command=None)
 
 # Current time.
 last_update_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
