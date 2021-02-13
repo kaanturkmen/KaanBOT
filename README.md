@@ -10,7 +10,7 @@ pip3 install -r requirements.txt
 3. Run the main.py file.
 
 # Additional Notes
-1. KaanBOT is designed and being used in the [Computer Science Türkiye](https://www.google.com) discord server.
+1. KaanBOT is designed and being used in the [Computer Science Türkiye](https://discord.gg/CRy8eER) discord server.
 2. Main purpose of creation is to moderate Computer Science Türkiye server. This is the main reason why it is not compatible with running on multiple servers.
 3. Since it is running on Turkish server, messages, notifications and other properties are in Turkish language.
 4. You can visit my discord server and let me know if you have a question.
