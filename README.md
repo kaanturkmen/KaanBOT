@@ -1,13 +1,22 @@
-# KaanBOT
+# Setup
+1. Clone this repository to your local machine / server.
+2. Run the following command:
 
-KaanBOT is created for moderating and having fun in discord servers.
+```
+pip3 install -r requirements.txt
+```
 
-KaanBOT is designed for CS Türkiye discord server. Thus, it is completely turkish.
+2. Fill the required areas. (i.e. Settings.py file.)
+3. Run the main.py file.
 
-If you want to install required packages, simply run "pip3 install -r requirements.txt" command in your terminal.
+# Additional Notes
+1. KaanBOT is designed and being used in the [Computer Science Türkiye](https://www.google.com) discord server.
+2. Main purpose of creation is to moderate Computer Science Türkiye server. This is the main reason why it is not compatible with running on multiple servers.
+3. Since it is running on Turkish server, messages, notifications and other properties are in Turkish language.
+4. You can visit my discord server and let me know if you have a question.
 
-After you import discord.py package and edit required areas, bot will be ready to run.
+# How to Contribute?
+1. If you need an additional feature that you want to add, please create a pull request. 
+2. If you want to request a feature, create a issue instead.
 
-For a feedback or questions, you can create an issue or contact me via my discord server CS Türkiye.
-
-CS Türkiye Discord: https://discord.gg/CRy8eER
+P.S. While sending a pull request, please be clear as possible (i.e. comment your code, explain what you have done.). Also, sent multiple pull requests if the change you will make is complicated and long.
