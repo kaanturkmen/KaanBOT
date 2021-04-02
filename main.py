@@ -107,7 +107,7 @@ async def on_member_join(member):
             f" konularda yardım edeceğim. Öncelikle CS Türkiye discord sunucumuza hoş geldin! Seninle beraber"
             f" {guild.member_count - bot_count()} kişi olduk, katıldığın için çok mutluyuz. Birçok üniversite ve bölümden"
             f" insanların bulunduğu bu sunucuda umarım eğlenirsin. Bunlara ek olarak yazılımla ilgili her şey bu sunucuda"
-            f" var,  dilediğinde insanlara yardım edip dilediğinde ise insanlardan yardım alabilirsin. İlk mesajını atmadan"
+            f" var, dilediğinde insanlara yardım edip dilediğinde ise insanlardan yardım alabilirsin. İlk mesajını atmadan"
             f" önce kuralları okumayı unutma ve memnun kalmadığın bir şey olursa @Kaan veya @Moderatör taglarıyla mutlaka"
             f" bize ulaş. Kendine iyi bak, iyi eğlenceler! :computer:")
     except discord.errors.Forbidden:
