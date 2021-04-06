@@ -103,13 +103,12 @@ async def on_member_join(member):
     try:
         await member.send(
             f"Selam {member.mention}! Ben KaanBOT. CS Türkiye sunucusunun moderasyonunu sağlamakla görevliyim ve"
-            f" bu sunucuda sana çeşitli"
-            f" konularda yardım edeceğim. Öncelikle CS Türkiye discord sunucumuza hoş geldin! Seninle beraber"
-            f" {guild.member_count - bot_count()} kişi olduk, katıldığın için çok mutluyuz. Birçok üniversite ve bölümden"
-            f" insanların bulunduğu bu sunucuda umarım eğlenirsin. Bunlara ek olarak yazılımla ilgili her şey bu sunucuda"
-            f" var, dilediğinde insanlara yardım edip dilediğinde ise insanlardan yardım alabilirsin. İlk mesajını atmadan"
-            f" önce kuralları okumayı unutma ve memnun kalmadığın bir şey olursa @Kaan veya @Moderatör taglarıyla mutlaka"
-            f" bize ulaş. Kendine iyi bak, iyi eğlenceler! :computer:")
+            f" bu sunucuda sana çeşitli konularda yardım edeceğim. Öncelikle CS Türkiye discord sunucumuza hoş geldin!"
+            f" Seninle beraber {guild.member_count - bot_count()} kişi olduk, katıldığın için çok mutluyuz. Birçok"
+            f" üniversite ve bölümden insanların bulunduğu bu sunucuda umarım eğlenirsin. Bunlara ek olarak yazılımla
+            f" ilgili her şey bu sunucuda var, dilediğinde insanlara yardım edip dilediğinde ise insanlardan yardım"
+            f" alabilirsin. İlk mesajını atmadan önce kuralları okumayı unutma ve memnun kalmadığın bir şey olursa"
+            f" @Kaan veya @Moderatör taglarıyla mutlaka bize ulaş. Kendine iyi bak, iyi eğlenceler! :computer:")
     except discord.errors.Forbidden:
         print("Cannot send a message to the user.")
 
