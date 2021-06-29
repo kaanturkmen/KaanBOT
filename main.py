@@ -580,6 +580,56 @@ async def kayitsil(ctx, member: discord.Member):
 
         await channel.send(embed=embed)
 
+@client.command()
+async def Piyasa(ctx):
+
+    response = requests.get('https://api.genelpara.com/embed/para-birimleri.json')
+
+    def jprint(obj):
+        # create a formatted string of the Python JSON object
+        text = json.dumps(obj, sort_keys=True, indent=4)
+
+        return text.strip('"')
+
+    em = discord.Embed(title=time.strftime('%c'), description="")
+    em.add_field(name="Dolar" ,value=(jprint(response.json()["USD"]["alis"])+"â‚º"))
+    em.add_field(name="Euro", value=(jprint(response.json()["EUR"]["alis"])+"â‚º"))
+
+    await ctx.send(embed=em)
+
+@client.command()
+async def Euro(ctx,euroSay=1):
+
+    response = requests.get('https://api.genelpara.com/embed/para-birimleri.json')
+
+    def jprint(obj):
+        # create a formatted string of the Python JSON object
+        text = json.dumps(obj, sort_keys=True, indent=4)
+
+        return text.strip('"')
+
+    euroDeger = float(jprint(response.json()["EUR"]["alis"])) * int(euroSay)
+    message = round(euroDeger, 2)
+
+    em = discord.Embed(title=f"EÄŸer {euroSay} Euro'nun ÅŸu anki kur ile deÄŸeri!", description=str(message)+"â‚º",color=0xFF5733)
+    await ctx.send(embed = em)
+
+@client.command()
+async def Dolar(ctx,dolarSay=1):
+
+    response = requests.get('https://api.genelpara.com/embed/para-birimleri.json')
+
+    def jprint(obj):
+        # create a formatted string of the Python JSON object
+        text = json.dumps(obj, sort_keys=True, indent=4)
+
+        return text.strip('"')
+
+    euroDeger = float(jprint(response.json()["USD"]["alis"])) * int(dolarSay)
+    message = round(euroDeger, 2)
+
+    em = discord.Embed(title=f"{dolarSay} Dolar'Ä±n ÅŸu anki kur ile deÄŸeri!", description=str(message)+"â‚º",color=0xFF5733)
+    await ctx.send(embed = em)        
 
 if __name__ == '__main__':
     main()
