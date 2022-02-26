@@ -101,6 +101,9 @@ class Namespace:
         if names is not None and isinstance(names, str):
             self.__delattr__(names)
 
+        for name in args:
+            self.__delattr__(name)
+
     def keys(self) -> list:
         """
             Return attributes keys
