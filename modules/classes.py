@@ -101,9 +101,6 @@ class Namespace:
         if names is not None and isinstance(names, str):
             self.__delattr__(names)
 
-        for name in args:
-            self.__delattr__(name)
-
     def keys(self) -> list:
         """
             Return attributes keys
@@ -387,7 +384,7 @@ class LevelMeter:
         member = Namespace.load(data)
         member.exp += amount
 
-        next_level_requirements = self.get_level_requirements(member.level+1)
+        next_level_requirements = self.get_member_next_level_requirements(member)
 
         while member.exp >= next_level_requirements:
             member.level += 1
@@ -396,7 +393,7 @@ class LevelMeter:
             if member.level == self.max_level:
                 break
 
-            next_level_requirements = self.get_level_requirements(member.level+1)
+            next_level_requirements = self.get_member_next_level_requirements(member)
 
         if member.exp < 0:
             member.exp = 0
@@ -413,7 +410,7 @@ class LevelMeter:
 
         old_level = member.level
 
-        next_level_requirements = self.get_level_requirements(member.level+1)
+        next_level_requirements = self.get_member_next_level_requirements(member)
 
         while next_level_requirements is not None and member.exp >= next_level_requirements:
             member.level += 1
@@ -422,7 +419,7 @@ class LevelMeter:
             if member.level == self.max_level:
                 break
 
-            next_level_requirements = self.get_level_requirements(member.level+1)
+            next_level_requirements = self.get_member_next_level_requirements(member)
 
         if old_level != member.level:
             channel = guild.get_channel(constants.SERVER_BOT_LOG_CHANNEL_ID)
