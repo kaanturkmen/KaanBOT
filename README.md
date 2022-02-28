@@ -6,7 +6,6 @@
 pip3 install -r requirements.txt
 ```
 
-2. Fill the required areas. (i.e. Settings.py file.)
 3. Run the main.py file.
 
 # Additional Notes
