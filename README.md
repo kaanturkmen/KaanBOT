@@ -14,6 +14,8 @@ pip3 install -r requirements.txt
 2. Main purpose of creation is to moderate Computer Science Türkiye server. This is the main reason why it is not compatible with running on multiple servers.
 3. Since it is running on Turkish server, messages, notifications and other properties are in Turkish language.
 4. You can visit my discord server and let me know if you have a question.
+5. In the master branch, original KaanBOT 1.0 is active, for the KaanBOT 2.0 please see the version-2 branch as well as releases tab.
+6. Developer of the KaanBOT 2.0 version of KaanBOT is @isacolak, special thanks to him for his contributions to the project!
 
 # How to Contribute?
 1. If you need an additional feature that you want to add, please create a pull request. 
