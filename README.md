@@ -19,6 +19,6 @@ pip3 install -r requirements.txt
 
 # How to Contribute?
 1. If you need an additional feature that you want to add, please create a pull request. 
-2. If you want to request a feature, create a issue instead.
+2. If you want to request a feature, create an issue instead.
 
 P.S. While sending a pull request, please be clear as possible (i.e. comment your code, explain what you have done.). Also, sent multiple pull requests if the change you will make is complicated and long.
